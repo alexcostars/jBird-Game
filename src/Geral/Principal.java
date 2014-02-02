@@ -20,44 +20,41 @@ import Logica.*;
 import Movimento.*;
 import Terreno.*;
 
-
-
-
-
 public class Principal extends JFrame implements KeyListener {
 
+	//maximo que o usuário pode perder até perder a partida
 	private static final int PONTUACAO_MAX = 200;
+	//distancia em pixels entre os elementos da janela (objetos do jogo)
 	public static final int DISTANCIA_ENTRE_OS_ELEMENTOS = 46;
-	public static boolean movert = false;
+	//variavel que guarda se no memento de verifcacao da mesma está sendo movimentado o personagem ou ele está parado
+	public static boolean movert = false; 
 	
-	private Imagem personagem;
-		
+	//X e Y em pixels da posição do personagem na tela
 	private int cordXPixels, cordYPixels;
-	private int cordXArray, cordYArray;
+	//X e Y em array de elementos (terreno) da posição do personagem na tela
+	private int cordXArray, cordYArray; 
 	
-	
-	private Terreno terreno;
-	
-	
+	/* dados do usuario da partida */
 	private String usuario = null;
 	private int level = -1;
 	private int pontos = PONTUACAO_MAX;
 	
-	
+	/* objetos da tela */
+	private Imagem personagem;
+	private Terreno terreno;
 	private static JPanel painel;
 	private JMenuBar menuBar;
 	private JMenu menuUsuario;
 	private Font fonte;
 	private JLabel pontuacao;
 	
+	/* controle de acessibilidade */
 	private boolean deficienteVisual = false;
 	private boolean daltonico = false;
-	public static boolean executandoPeloJar = true;
 	
 	public Principal () {
 		
-		
-		
+			/* Questoes de acessibilidade */
 			if (JOptionPane.showConfirmDialog(null, "Você possui algum tipo de deficiência visual parcial?", "Mensagem", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 				deficienteVisual = true;
 			}
@@ -65,29 +62,26 @@ public class Principal extends JFrame implements KeyListener {
 				daltonico = true;
 			}
 		
-			/* CARREGANDO A FONTE */
+			/* carregando a fonte do placar (não presente no sistema) na memória */
 			try {
-				//FileInputStream in = new FileInputStream (new File ( "arquivos\\font2.ttf" ));
-				//alex
 				FileInputStream in = new FileInputStream (new File ( getPathAtual() + "\\" + "arquivos\\font2.ttf" ));
-				
-				
 				Font dynamicFont =	Font.createFont (Font.TRUETYPE_FONT, in); 
-				fonte = dynamicFont.deriveFont (40f);
+				fonte = dynamicFont.deriveFont(40f);
 	        }
 	        catch (Exception ert) {
 	        	System.out.println("Erro ao carregar a fonte. " + ert.toString());
 	        }
 	        
+			/* Definindo o titulo, as dimensoes e o posicionamento da janela */
 			setTitle("Projeto - Angry Birds");
 	        this.setSize((new Terreno(-1).getTamanho() -2 )* DISTANCIA_ENTRE_OS_ELEMENTOS + 20, (new Terreno(-1).getTamanho() -2) * DISTANCIA_ENTRE_OS_ELEMENTOS + 20 + 20);
 	        setResizable(false);
 	        setLocationRelativeTo(null);
 	        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-	        menuBar = new JMenuBar();	       
-	        
+	        menuBar = new JMenuBar();
 	        this.setJMenuBar(menuBar);
+	        /* populando o menu superior com opcoes */
 	        mostrarMenu();
 	        
 	        painel = new JPanel();
@@ -95,14 +89,13 @@ public class Principal extends JFrame implements KeyListener {
 	        
 	        this.add(painel);
 	        this.setVisible(true);
-	      
+	        
 	        this.addKeyListener(this);
-
 	}
 	
-	
-	/* INTERFACE GRAFICA */
-	
+	/*
+	 método que popula o menu superior com opcoes
+	 */
 	private void mostrarMenu () {
 		
         menuBar.removeAll();
@@ -147,14 +140,8 @@ public class Principal extends JFrame implements KeyListener {
         
         menuUsuario.addSeparator();
         
-        
-        
-        
-        
-        
         JMenu submenuSelecionarUsuario = new JMenu("Selecionar usuário");
         menuUsuario.add(submenuSelecionarUsuario);
-        
         
         String[] usuarios = getUsuarios();
         
@@ -169,16 +156,15 @@ public class Principal extends JFrame implements KeyListener {
             });
         }
         
-        
-        
-
         menuBar.repaint();
-        
 	}
 	
+	/*
+	 método que coloca o jogo na tela. Toda vez que o jogador iniciar ou reiniciar uma partida
+	 este método será o responsável por "pintar" os elementos na tela
+	 */
 	private void mostrarNovoJogo() {
 		
-	
 		terreno = new Terreno(level);
 		
 		if(terreno.getTamanho() == 999999) {
@@ -188,18 +174,14 @@ public class Principal extends JFrame implements KeyListener {
 			terreno = new Terreno(-1);
 		}
 		
-		
 		painel.removeAll();
 
         painel.setLayout(null);
         painel.setBackground(Color.black);
         
-        
         int numeroDeComponentesAdicionados = 0;
         
-		
-		
-		
+        /* percorre a matriz X e Y do terreno e vai adicionado seus elementos na tela */
 		for(int cont = 1; cont < terreno.getTamanho() -1; cont++) {
 			for(int cont2 = 1; cont2 < terreno.getTamanho() -1; cont2++) {
 				
@@ -219,8 +201,6 @@ public class Principal extends JFrame implements KeyListener {
 					imagem = new Imagem("arquivos\\portal.png");
 				}
 				
-				
-				
 				if(imagem != null) {
 					imagem.setCoordenada((cont - 1) * DISTANCIA_ENTRE_OS_ELEMENTOS, (cont2 - 1) * DISTANCIA_ENTRE_OS_ELEMENTOS);
 					painel.add(imagem);
@@ -229,17 +209,11 @@ public class Principal extends JFrame implements KeyListener {
 			}
 		}
 		
-		
-		
 		Imagem background = new Imagem("arquivos\\fundo.jpg");
 		if(daltonico) {
         	background = new Imagem("arquivos\\fundo_daltonicos.jpg");
         }
         
-        
-      //  "icons/exit.png")
-        
-        //Imagem background = new Imagem("arquivos\\fundo.jpg");
         background.setCoordenada(0, 0);
        
         int[] posicaoPersonagem = terreno.getPosicaoPersonagem();
@@ -259,18 +233,12 @@ public class Principal extends JFrame implements KeyListener {
         painel.add(background);
         painel.add(personagem);
         
-        
-        
         numeroDeComponentesAdicionados += 2;
-        
-        
-        
+
         painel.setComponentZOrder(background, numeroDeComponentesAdicionados -1);
         painel.setComponentZOrder(personagem, 0);
         
-        
-        
-    
+        /* Se houver um usuario, mostra o placar no topo da pagina */
 		if(usuario != null) {
 			pontuacao = new JLabel();
 			pontuacao.setFont(fonte);
@@ -286,17 +254,8 @@ public class Principal extends JFrame implements KeyListener {
 		    atualizarPlacar();
 		}
         
-        
-        
-       
-        
-
         painel.repaint();
         painel.setVisible(true);
-        
-		
-
-	
 	}
 	
 	public void atualizarPlacar() {
@@ -315,21 +274,23 @@ public class Principal extends JFrame implements KeyListener {
 		JOptionPane.showMessageDialog(null, mensagem);
 	}
 	
-	/* EVENTOS */
+	/*
+	 Evento que ocorrerá quando o usuário pressionar uma tecla
+	 */
 	
 	public void keyPressed(KeyEvent ke) {
 		
 		if(usuario != null) {
 			if(movert == false) {
 				
+				//define que o objeto está sendo movido
 				movert = true;
 
-
-				int direcao = -1;
-				
+				int direcao = -1;				
 				int movX = 0;
 				int movY = 0;
 				
+				//de acordo com a tecla, define a direção do movimento
 				switch (ke.getKeyCode()) {
 			        case KeyEvent.VK_RIGHT:
 			        	direcao = 1;
@@ -349,77 +310,50 @@ public class Principal extends JFrame implements KeyListener {
 			        	break;
 				}
 				
-				
-				
 				if(direcao > 0 && pontos > 0) {
 						
-						ArrayList<Movimento> conjuntoDeMovimentos = new ArrayList<Movimento>();
-						
-						
-				
-						IA ia = new IA();
-						
-						
-					    Movimento mov = null;
-					    
-					    do {
-					    	pontos--;
-					    	
-					    	if(pontos == 0) {
-								conjuntoDeMovimentos.add(new Perder());
-					    		break;
-							}
-					    	
-					    	
-					    	mov = ia.gerarPercurso(terreno, cordXArray, cordYArray, direcao);
-					    	
-					    	if(mov instanceof MoverParaXY) {
-						        cordXArray = ((MoverParaXY) mov).getMovimentoX();
-						        cordYArray = ((MoverParaXY) mov).getMovimentoY();
-						    }
-					    	if(mov instanceof Andar || mov instanceof MoverParaXY) {
-							    cordXArray += movX;
-							    cordYArray += movY;
-							    cordXPixels = (cordXArray - 1) * DISTANCIA_ENTRE_OS_ELEMENTOS;
-						        cordYPixels = (cordYArray - 1) * DISTANCIA_ENTRE_OS_ELEMENTOS;
-						        
-						        conjuntoDeMovimentos.add(mov);
-							}
-					    	else if (mov instanceof Fim) {
-						    	
-						    	conjuntoDeMovimentos.add(mov);
-						    	mov = null;
-						    	/*
-					    		level++;
-						    	salvarJogoUsuario();
-						    	gerarMensagem("Parabéns! Você completou este level.\nSua pontuação foi de " + pontos + ".");
-						    	mostrarNovoJogo();
-						    	*/
-						    }
-					    	
-					    	
-					    	
-					    	
+					IA ia = new IA();	
+					ArrayList<Movimento> conjuntoDeMovimentos = new ArrayList<Movimento>();
 
-					    	
+					Movimento mov = null;
+					    
+				    do {
+				    	pontos--;
+				    	
+				    	//quando os pontos chegarem a zero, o usuario perde
+				    	if(pontos == 0) {
+							conjuntoDeMovimentos.add(new Perder());
+				    		break;
+						}
+				    	
+				    	mov = ia.gerarPercurso(terreno, cordXArray, cordYArray, direcao);
+				    	
+				    	//atualiza as coordenadas
+				    	if(mov instanceof MoverParaXY) {
+					        
+				    		cordXArray = ((MoverParaXY) mov).getMovimentoX();
+					        cordYArray = ((MoverParaXY) mov).getMovimentoY();
 					    }
-					    while(mov != null);
-					    
-					    
-					    
-					    ThreadMoverPersonagem thread = new ThreadMoverPersonagem(personagem, conjuntoDeMovimentos, this);
-				        thread.start();
-				        
-				        
-				        
-
+				    	if(mov instanceof Andar || mov instanceof MoverParaXY) {
+						    
+				    		cordXArray += movX;
+						    cordYArray += movY;
+						    cordXPixels = (cordXArray - 1) * DISTANCIA_ENTRE_OS_ELEMENTOS;
+					        cordYPixels = (cordYArray - 1) * DISTANCIA_ENTRE_OS_ELEMENTOS;
+					        
+					        conjuntoDeMovimentos.add(mov);
+						}
+				    	else if (mov instanceof Fim) {
+					    	
+					    	conjuntoDeMovimentos.add(mov);
+					    	mov = null;
+					    }
+				    }
+				    while(mov != null);
+				    //efetivamente move o personagem para as coordenadas definidas
+				    ThreadMoverPersonagem thread = new ThreadMoverPersonagem(personagem, conjuntoDeMovimentos, this);
+			        thread.start();
 				}
-				
-				
-				
-				
-				
-				
 			}
 		}
 		else {
@@ -428,94 +362,76 @@ public class Principal extends JFrame implements KeyListener {
 		
 	}
 
+	/*
+	 devido ao implements, e necessario definir aos seguintes metodos, mas nao serao usados
+	 */
 	public void keyReleased(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
-	@Override
 	public void keyTyped(KeyEvent arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 	
-	/* JOGO */
-	
+	/*
+	 quando o usuário completar uma fase, este método será chamado
+	 */
 	public void incrementarLevel() {
 
 		level++;
     	salvarJogoUsuario();
-    //	gerarMensagem("Parabéns! Você completou este level.");
     	mostrarNovoJogo();
     	pontos = PONTUACAO_MAX;
-
     }
 	
 	private void mostrarRanking () {
 
-					String[] usuariosFormatados = getUsuarios();
-					String [][] ranking = new String[usuariosFormatados.length][3];
-				
-					for(int cont = 0; cont < usuariosFormatados.length; cont++) {
-						
-						String usuarioAtual = usuariosFormatados[cont];
-						ranking[cont][0] = usuarioAtual;
-						ranking[cont][1] = getProperties("arquivos/config.properties", usuarioAtual + "_pts");
-						ranking[cont][2] = getProperties("arquivos/config.properties", usuarioAtual + "_level");
-						
-						//System.out.println("Coletando informações de: " + ranking[cont][0] + " " + ranking[cont][1] + " " +ranking[cont][2]);
-						
-					}
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					Arrays.sort(ranking, new Comparator<String[]>() {
-			            public int compare( String[] tupla1,  String[] tupla2) {
-			                 Integer level1 = Integer.parseInt(tupla1[2]);
-			                 Integer level2 = Integer.parseInt(tupla2[2]);
-			                 Integer pts1 = Integer.parseInt(tupla1[1]);
-			                 Integer pts2 = Integer.parseInt(tupla2[1]);
-			                 
-			                 //System.out.println(valor1 + " " + valor2 + " " + valor1.compareTo(valor2));
-			                 
-			                 //return valor1.compareTo(valor2) * -1;
-			                 if (level1 > level2) {
-			                     return -1;
-			                 } else if (level2 > level1) {
-			                     return 1;
-			                 } else {
-			                	 if (pts1 > pts2) {
-				                     return -1;
-				                 } else if (pts2 > pts1) {
-				                     return 1;
-				                 } else {
-				                     return 0;
-				                 }
-			                 }
-			            }
-			        });
-					String rankingEmTexto = "";
-					int cont = 1;
-			        for ( String[] s : ranking) {
-			            rankingEmTexto += "Posição " + cont + ": " + s[0] + "\npts: " + s[1] + " - level: " + s[2] + "\n\n";
-			            cont++;
-			        }        
-					
-					
-					
-					
-					
-					
-					
-					
-					gerarMensagem(rankingEmTexto);		
+		String[] usuariosFormatados = getUsuarios();
+		String [][] ranking = new String[usuariosFormatados.length][3];
+		
+		//lendo os pontos do arquivo
+		for(int cont = 0; cont < usuariosFormatados.length; cont++) {
+			
+			String usuarioAtual = usuariosFormatados[cont];
+			ranking[cont][0] = usuarioAtual;
+			ranking[cont][1] = getProperties("arquivos/config.properties", usuarioAtual + "_pts");
+			ranking[cont][2] = getProperties("arquivos/config.properties", usuarioAtual + "_level");
 		}
+		
+		/*
+		 ordenando do maior level para o menor, sendo que o criterio de desempate é o numero de pontos,
+		 quem tiver o maior numero de pontos concluiu com menos movimentos as fases
+		 */
+		Arrays.sort(ranking, new Comparator<String[]>() {
+            public int compare( String[] tupla1,  String[] tupla2) {
+                 Integer level1 = Integer.parseInt(tupla1[2]);
+                 Integer level2 = Integer.parseInt(tupla2[2]);
+                 Integer pts1 = Integer.parseInt(tupla1[1]);
+                 Integer pts2 = Integer.parseInt(tupla2[1]);
+                 
+                 if (level1 > level2) {
+                     return -1;
+                 } else if (level2 > level1) {
+                     return 1;
+                 } else {
+                	 if (pts1 > pts2) {
+	                     return -1;
+	                 } else if (pts2 > pts1) {
+	                     return 1;
+	                 } else {
+	                     return 0;
+	                 }
+                 }
+            }
+        });
+		
+		//definindo a mensagem a ser mostrada
+		String rankingEmTexto = "";
+		int cont = 1;
+        for ( String[] s : ranking) {
+            rankingEmTexto += "Posição " + cont + ": " + s[0] + "\npts: " + s[1] + " - level: " + s[2] + "\n\n";
+            cont++;
+        }        
+		gerarMensagem(rankingEmTexto);		
+	}
 	
 	public int getPontos () {
 		return pontos;
@@ -525,104 +441,75 @@ public class Principal extends JFrame implements KeyListener {
 		gerarMensagem("Você perdeu!");
 		pontos = PONTUACAO_MAX;
 		mostrarNovoJogo();
-	//	return false;
 	}
 	
-	/* PROPERTIES */
-	
+	/* 
+	 Manipulação de arquivos
+	 */
 	private String getProperties(String arquivoProperties, String campo)  {
 
 		String resultado = null;
 		
 		try {
 			
-			//alex
-			
 			arquivoProperties = Principal.getPathAtual() + "\\" + arquivoProperties;
 			
-			File file = new File(arquivoProperties);
+			File arq = new File(arquivoProperties);
 			Properties props = new Properties();
 			FileInputStream fis = null;
 
-		    fis = new FileInputStream(file);
+		    fis = new FileInputStream(arq);
 		    props.load(fis);    
 		    fis.close();
 		    
 		    resultado = props.getProperty(campo);
-		    
-		 
-		
-		    
 		}
 		catch (Exception ert) {
 			System.out.println(ert.toString());
 		}
 		    
-
-		
-		
 		return resultado;
-		
 	}
 		
 	private void setProperties(String arquivoProperties, String campo, String conteudo)  {
 
 		try {
-			
-			//alex
+
 			arquivoProperties = Principal.getPathAtual() + "\\" + arquivoProperties;
-			//System.out.println(arquivoProperties);
-			
-			File file = new File(arquivoProperties);
+
+			File arq = new File(arquivoProperties);
 			Properties props = new Properties();
 			FileInputStream fis = null;
   
-		    fis = new FileInputStream(file);
+		    fis = new FileInputStream(arq);
 		    props.load(fis);    
 		    fis.close();
-		    
 
 		    props.setProperty(campo, conteudo);
-		    
-		 
-		    
-
-	            //Criamos um objeto FileOutputStream             
-	            FileOutputStream fos = new FileOutputStream(arquivoProperties);
-	            //grava os dados no arquivo
-	           props.store(fos, "");
-	            //fecha o arquivo
-	            fos.close();
-
-
-		    
-	    
-
+    
+            FileOutputStream fos = new FileOutputStream(arquivoProperties);
+            //grava os dados no arquivo
+            props.store(fos, "");
+            //fecha o arquivo
+            fos.close();
 		}
 		catch (Exception ert) {
 			System.out.println(ert.toString());
 		}
-		
-
-		
 	}
 	
 	/* MANIPULACAO DE USUARIOS */
 	
 	private String[] getUsuarios () {
-		//return new String[0];
 		return getProperties("arquivos/config.properties", "usuarios").split(";");
 	}
 	
 	private void setUsuario () {
 		
-		String descricao = "Informe o nome do novo usuário:";
-		String nome = lerDoTeclado(descricao);
+		String nome = lerDoTeclado("Informe o nome do novo usuário:");
 		
 		if(nome != null) {
-			
-		
-		
+
 				String usuarios = getProperties("arquivos/config.properties", "usuarios");
 				if(usuarios.length() > 0 && usuarios.substring(0, 1).equals(";")) {
 					usuarios = usuarios.substring(1, usuarios.length());
@@ -643,49 +530,42 @@ public class Principal extends JFrame implements KeyListener {
 				}
 				
 				if(usuarioValido) {
-				
-				
+					
 					setProperties("arquivos/config.properties", "usuarios", usuarios + (usuarios.length() > 1 ? ";" : "") + nome);
 					setProperties("arquivos/config.properties", nome + "_level", "1");
 					setProperties("arquivos/config.properties", nome + "_pts", "0");
 					mostrarMenu();
 				}
 				else {
+					
 					gerarMensagem("O usuário escolhido já existe, escolha outro nome");
 					setUsuario();
 				}
 		}
-		
-		
-	//	setProperties("arquivos/config.properties", nome + "_level1", "0");
-		
 	}
 
 	private void salvarJogoUsuario () {
+		
 		setProperties("arquivos/config.properties", usuario + "_level", "" + level);
 		int pontuacaoAnterior = Integer.parseInt(getProperties("arquivos/config.properties", usuario + "_pts"));
 		setProperties("arquivos/config.properties", usuario + "_pts", "" + (pontos + pontuacaoAnterior));
-		
 	}
 	
 	private void selecionarUsuario (String usuario) {
+		
 		this.usuario = usuario;
 		this.level = Integer.parseInt(getProperties("arquivos/config.properties", usuario + "_level"));
 		this.pontos = PONTUACAO_MAX;
 		mostrarNovoJogo();
-	//	gerarMensagem("Agora você está jogando com usuário " + usuario);
 	}
 	
-	/* CONTROLE */
 	public static String getPathAtual () {
 		File f = new File(System.getProperty("java.class.path"));
 		File dir = f.getAbsoluteFile().getParentFile();
 		return dir.toString();
 	}
 	
-	
 	public static void main (String[] args) {
 		new Principal();
 	}
-	
 }
