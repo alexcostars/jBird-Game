@@ -64,7 +64,7 @@ public class Principal extends JFrame implements KeyListener {
 		
 			/* carregando a fonte do placar (não presente no sistema) na memória */
 			try {
-				FileInputStream in = new FileInputStream (new File ( getPathAtual() + "\\" + "arquivos\\font2.ttf" ));
+				FileInputStream in = new FileInputStream (new File ( getPathAtual() + "\\" + "arquivos\\font.ttf" ));
 				Font dynamicFont =	Font.createFont (Font.TRUETYPE_FONT, in); 
 				fonte = dynamicFont.deriveFont(40f);
 	        }
