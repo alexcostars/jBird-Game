@@ -3,7 +3,7 @@ Demostrativo Java
 
 Neste projeto busco desenvolver um jogo simples em Java SE, visando demostrar alguns conceitos e capacidades referentes à linguagem.
 
-![alt tag](https://raw2.github.com/alexcostars/java_se/master/arquivos/print.png)
+![alt tag](https://raw.githubusercontent.com/alexcostars/jBird-Game/master/arquivos/print.png)
 
 Estão sendo aplicados conceitos de Orientação a Objetos (extends, implements), utilização de Threads, manipulação de imagens, arquivos e classes.
 
